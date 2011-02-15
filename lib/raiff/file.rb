@@ -55,11 +55,11 @@ class Raiff::File
     ((sign == '1') ? -1.0 : 1.0) * (fraction.to_f / ((1 << 63) - 1)) * (2 ** exponent)
   end
 
-  def unpack(format)
+  def unpack(format, length = nil)
     return if (@offset >= @data.length)
 
     part = @data[@offset, @data.length].unpack(format)
-    advance(part.pack(format).length)
+    advance(length || part.pack(format).length)
     part
 
   rescue TypeError

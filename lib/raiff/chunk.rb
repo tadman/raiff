@@ -15,6 +15,7 @@ class Raiff::Chunk
   # == Instance Methods =====================================================
   
   def initialize(file)
+    @file = file
     @id = file.read(4)
     @size = file.unpack('N')[0]
   end

@@ -1,8 +1,7 @@
 class Raiff::Chunk::SoundData < Raiff::Chunk
   # == Properties ===========================================================
   
-  attr_reader :offset, :block_size
-  attr_reader :samples
+  attr_reader :offset, :block_size, :start_offset
 
   # == Class Methods ========================================================
 
@@ -11,33 +10,67 @@ class Raiff::Chunk::SoundData < Raiff::Chunk
   def initialize(file, common)
     super(file)
     
-    end_offset = file.offset + @size
+    @common = common
+
+    @start_offset = file.offset
+    @end_offset = file.offset + @size
     
     @offset, @block_size = file.unpack('NN')
 
     file.read(@offset)
     
-    sample_count = (end_offset - file.offset) / common.bytes_per_sample
-    bit_offset = common.bytes_per_sample * 8 - common.sample_size
-    value_offset = (1 << common.sample_size) - 1
+    @sample_count = (@end_offset - file.offset) / @common.bytes_per_sample
+    @bit_offset = @common.bytes_per_sample * 8 - @common.sample_size
     
-    @samples = [ ]
+    file.advance(@sample_count * @common.bytes_per_sample)
+  end
+  
+  def read_sample
+    self.decoder.call
+  end
+  
+  def read_samples(count)
+    if (count + @file.offset > @end_offset)
+      count = (@end_offset - @file.offset) / @common.bytes_per_sample
+    end
     
-    case (common.bytes_per_sample)
-    when 3
-      format = 'B24' * common.channels
-      
-      sample_count.times do
-        if (sample = file.unpack(format))
-          @samples << sample.collect { |s| (s.to_i(2) >> bit_offset) - value_offset }
-        end
-      end
-    else
-      format = %w[ C n x N ][common.bytes_per_sample] * common.channels
-      
-      sample_count.times do
-        @samples << file.unpack(format).collect { |i| (i >> bit_offset) - value_offset }
+    samples = [ ]
+    _decoder = self.decoder
+
+    count.times do
+      samples << _decoder.call
+    end
+    
+    samples
+  end
+  
+  def decoder
+    sample_size = @common.bytes_per_sample
+    channels = (1..@common.channels).to_a
+    negative = 1 << (@common.sample_size - 1)
+
+    @decoder =
+      case (@bit_offset)
+      when 0
+        lambda {
+          channels.collect {
+            v = @file.read(sample_size).bytes.inject(0) do |a, b|
+              a << 8 | b
+            end
+            
+            (v & negative) ? ((v ^ negative) - negative) : v
+          }
+        }
+      else
+        lambda {
+          channels.collect {
+            v = @file.read(sample_size).bytes.inject(0) do |a, b|
+              a << 8 | b
+            end >> @bit_offset - @value_offset
+
+            (v & negative) ? ((v ^ negative) - negative) : v
+          }
+        }
       end
     end
-  end
 end

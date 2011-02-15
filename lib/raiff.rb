@@ -40,14 +40,6 @@ class Raiff
         @sample_size = common_chunk.sample_size
         @sample_rate = common_chunk.sample_rate
       end
-      
-      @samples = [ ]
-
-      if (@chunks['SSND'])
-        @chunks['SSND'].each do |sound_data|
-          @samples += sound_data.samples
-        end
-      end
     end
   end
   
@@ -55,9 +47,27 @@ class Raiff
     "<Raiff\##{object_id} channels=#{channels} sample_frames=#{sample_frames} sample_size=#{sample_size} sample_rate=#{sample_rate}>"
   end
   
-  def each_sample(&block)
+  def each_sample
     @chunks['SSND'].each do |sound_data|
-      sound_data.samples.each(&:block)
+      @file.seek(sound_data.start_offset)
+
+      sound_data.samples_count.times do
+        sample = sound_data.read_sample
+
+        yield(sample)
+      end
+    end
+  end
+
+  def each_sample_block(size)
+    @chunks['SSND'].each do |sound_data|
+      @file.seek(sound_data.start_offset)
+
+      block_count = (@sample_frames - 1) / size + 1
+      
+      block_count.times do
+        yield(sound_data.read_samples(size))
+      end
     end
   end
 end
