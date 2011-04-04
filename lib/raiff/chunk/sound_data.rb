@@ -54,7 +54,7 @@ class Raiff::Chunk::SoundData < Raiff::Chunk
       when 0
         lambda {
           channels.collect {
-            v = @file.read(sample_size).bytes.inject(0) do |a, b|
+            v = @file.read(sample_size).to_s.bytes.inject(0) do |a, b|
               a << 8 | b
             end
             
@@ -64,7 +64,7 @@ class Raiff::Chunk::SoundData < Raiff::Chunk
       else
         lambda {
           channels.collect {
-            v = @file.read(sample_size).bytes.inject(0) do |a, b|
+            v = @file.read(sample_size).to_s.bytes.inject(0) do |a, b|
               a << 8 | b
             end >> @bit_offset - @value_offset
 

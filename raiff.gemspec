@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{raiff}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Scott Tadman"]
-  s.date = %q{2011-02-14}
+  s.date = %q{2011-04-04}
   s.description = %q{Reads in AIFF file data and audio contents}
   s.email = %q{github@tadman.ca}
   s.extra_rdoc_files = [
@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = %q{http://github.com/twg/raiff}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.rubygems_version = %q{1.5.3}
   s.summary = %q{Ruby AIFF Reading Library}
   s.test_files = [
     "test/helper.rb",
@@ -42,7 +42,6 @@ Gem::Specification.new do |s|
   ]
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
