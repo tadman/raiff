@@ -51,7 +51,7 @@ class Raiff
     @chunks['SSND'].each do |sound_data|
       @file.seek(sound_data.start_offset)
 
-      sound_data.samples_count.times do
+      sound_data.sample_count.times do
         sample = sound_data.read_sample
 
         yield(sample)

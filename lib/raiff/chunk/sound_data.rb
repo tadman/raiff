@@ -1,7 +1,7 @@
 class Raiff::Chunk::SoundData < Raiff::Chunk
   # == Properties ===========================================================
   
-  attr_reader :offset, :block_size, :start_offset
+  attr_reader :offset, :block_size, :start_offset, :sample_count
 
   # == Class Methods ========================================================
 
